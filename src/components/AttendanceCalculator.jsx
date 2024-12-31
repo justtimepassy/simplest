@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const AttendanceCalculator = () => {
