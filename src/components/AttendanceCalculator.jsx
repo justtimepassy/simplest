@@ -58,7 +58,7 @@ const AttendanceCalculator = () => {
       if (adjustedProjectedPercentage === 75) {
         message = "oaka day miss aina condonation eh";
       } else if (attendancePercentage < 75 && adjustedProjectedPercentage > 75) {
-        message = "Vellala Path Kudusthav";
+        message = "Vellaka Pothe Kudusthav";
       } else if (adjustedProjectedPercentage < 75) {
         message = "Condonation ready chesko";
       }
