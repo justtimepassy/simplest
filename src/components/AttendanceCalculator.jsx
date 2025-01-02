@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-
 const AttendanceCalculator = () => {
   const [workingDays, setWorkingDays] = useState("");
   const [holidaysTaken, setHolidaysTaken] = useState("");
@@ -15,38 +14,57 @@ const AttendanceCalculator = () => {
     const extraHols = parseInt(extraHolidays);
     const semesterStart = new Date(semesterStartDate);
     const today = new Date();
-    
+
     const nationalHolidays = [
-      "2025-01-01", "2025-01-26", "2025-04-14", "2025-05-01",
-      "2025-08-15", "2025-10-02", "2025-11-14", "2025-12-25",
+      "2025-01-01",
+      "2025-01-26",
+      "2025-04-14",
+      "2025-05-01",
+      "2025-08-15",
+      "2025-10-02",
+      "2025-11-14",
+      "2025-12-25",
     ];
-    
+
     if (isNaN(totalWorkingDays) || isNaN(holidays) || isNaN(extraHols) || !semesterStartDate) {
       alert("Please fill in all required fields!");
       return;
     }
-  
+
     let currentDate = new Date(semesterStart);
     let workingDaysTillToday = 0;
-  
+
     while (currentDate <= today) {
       const dayOfWeek = currentDate.getDay();
-      const formattedDate = currentDate.toISOString().split('T')[0];
-  
+      const formattedDate = currentDate.toISOString().split("T")[0];
+
+      // Exclude Sundays and national holidays
       if (dayOfWeek !== 0 && !nationalHolidays.includes(formattedDate)) {
         workingDaysTillToday++;
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
-  
+
     workingDaysTillToday -= extraHols;
     const attendedDays = workingDaysTillToday - holidays;
+
+    // Negative attendance check
+    if (attendedDays < 0) {
+      setResult({
+        attendancePercentage: null,
+        projectedPercentage: null,
+        message: "Kathal Oddhu",
+      });
+      setShowModal(true);
+      return;
+    }
+
     const attendancePercentage = (attendedDays / workingDaysTillToday) * 100;
     const remainingWorkingDays = totalWorkingDays - workingDaysTillToday;
     const totalAttendedIfPerfect = attendedDays + remainingWorkingDays;
     const projectedPercentage = (totalAttendedIfPerfect / totalWorkingDays) * 100;
     const adjustedProjectedPercentage = Math.max(projectedPercentage, attendancePercentage);
-  
+
     let message = "";
     if (workingDaysTillToday >= totalWorkingDays) {
       message = `Semester is over! Attendance percentage till today: ${attendancePercentage.toFixed(2)}%`;
@@ -163,7 +181,7 @@ const AttendanceCalculator = () => {
               <div className="space-y-4">
                 <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4">
                   <p className="text-sm font-medium text-zinc-900">
-                    Current Attendance: {result.attendancePercentage}%
+                    {result.attendancePercentage !== null && `Current Attendance: ${result.attendancePercentage}%`}
                   </p>
                   {result.projectedPercentage && (
                     <p className="text-sm font-medium text-zinc-900 mt-2">
