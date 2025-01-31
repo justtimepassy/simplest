@@ -101,6 +101,11 @@ const AttendanceCalculator = () => {
         message = "Vellaka Pothe Kudusthav";
       } else if (adjustedProjectedPercentage < 75) {
         message = "Condonation ready chesko";
+      } else if(attendancePercentage >= 90){
+        message = "Award em ledhu dheeniki, Panikoche panulu chudu";
+      }
+      else if(attendancePercentage > 75 && attendancePercentage < 90){
+        message = "Chaalu intha unte";
       }
       setResult({
         attendancePercentage: attendancePercentage.toFixed(2),
