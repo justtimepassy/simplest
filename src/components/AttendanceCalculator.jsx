@@ -8,6 +8,7 @@ const AttendanceCalculator = () => {
   const [vacations, setVacations] = useState([{ startDate: "", endDate: "" }]);
   const [result, setResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [targetAttendance, setTargetAttendance] = useState(""); // New state for target attendance
 
   const handleVacationChange = (index, e) => {
     const updatedVacations = [...vacations];
@@ -75,6 +76,7 @@ const AttendanceCalculator = () => {
         attendancePercentage: null,
         projectedPercentage: null,
         message: "Kathal Oddhu",
+        daysToTarget: null, // No days to target if attendance is negative
       });
       setShowModal(true);
       return;
@@ -86,6 +88,24 @@ const AttendanceCalculator = () => {
     const projectedPercentage = (totalAttendedIfPerfect / totalWorkingDays) * 100;
     const adjustedProjectedPercentage = Math.max(projectedPercentage, attendancePercentage);
 
+    // Calculate days to reach target attendance
+    let daysToTarget = null;
+    let targetMessage = "";
+    if (targetAttendance && !isNaN(targetAttendance)) {
+      const target = parseFloat(targetAttendance);
+      if (target > projectedPercentage) {
+        targetMessage = "Target Attendance : Adhi avvadhu amma";
+      } else if (attendancePercentage >= target) {
+        targetMessage = "Target Attendance : Already Undhi ga";
+      } else if (target === projectedPercentage) {
+        targetMessage = "Neeku holidays levu inka";
+      } else {
+        daysToTarget = Math.ceil(
+          (target * workingDaysTillToday - 100 * attendedDays) / (100 - target)
+        );
+      }
+    }
+
     let message = "";
     if (workingDaysTillToday >= totalWorkingDays) {
       message = `Semester is over! Attendance percentage till today: ${attendancePercentage.toFixed(2)}%`;
@@ -93,6 +113,8 @@ const AttendanceCalculator = () => {
         attendancePercentage: attendancePercentage.toFixed(2),
         projectedPercentage: null,
         message,
+        daysToTarget,
+        targetMessage,
       });
     } else {
       if (adjustedProjectedPercentage === 75) {
@@ -111,6 +133,8 @@ const AttendanceCalculator = () => {
         attendancePercentage: attendancePercentage.toFixed(2),
         projectedPercentage: adjustedProjectedPercentage.toFixed(2),
         message,
+        daysToTarget,
+        targetMessage,
       });
     }
     setShowModal(true);
@@ -155,7 +179,7 @@ const AttendanceCalculator = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none">
-                  Number of Extra Public Holidays
+                  Extra Public Holidays
                 </label>
                 <input
                   type="number"
@@ -175,6 +199,19 @@ const AttendanceCalculator = () => {
                   value={semesterStartDate}
                   onChange={(e) => setSemesterStartDate(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">
+                  Target Attendance Percentage
+                </label>
+                <input
+                  type="number"
+                  value={targetAttendance}
+                  onChange={(e) => setTargetAttendance(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2"
+                  placeholder="Enter target attendance (e.g., 75)"
                 />
               </div>
 
@@ -247,6 +284,16 @@ const AttendanceCalculator = () => {
                   {result.projectedPercentage && (
                     <p className="text-sm font-medium text-zinc-900 mt-2">
                       Projected Attendance: {result.projectedPercentage}%
+                    </p>
+                  )}
+                  {result.daysToTarget !== null && (
+                    <p className="text-sm font-medium text-zinc-900 mt-2">
+                      Days to reach {targetAttendance}%: {result.daysToTarget}
+                    </p>
+                  )}
+                  {result.targetMessage && (
+                    <p className="text-sm font-medium text-zinc-900 mt-2">
+                      {result.targetMessage}
                     </p>
                   )}
                 </div>
